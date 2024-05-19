@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.Rendering;
 
 public class Interactable : NetworkBehaviour
 {
@@ -11,8 +10,6 @@ public class Interactable : NetworkBehaviour
         true,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
-
-    private Color defaultColor;
 
     // in-scene placed NetworkObjects: Awake -> Start -> OnNetworkSpawn
     // dynamically spawned NetworkObjects: Awake -> OnNetworkSpawn -> Start
@@ -25,23 +22,13 @@ public class Interactable : NetworkBehaviour
         rend.enabled = visible.Value;
 
         rend.material = Instantiate(rend.material);
-        defaultColor = rend.material.color;
     }
 
-    public virtual void Hover()
-    {
-        rend.material.color = defaultColor + new Color(0.2f, 0.2f, 0.2f);
-    }
+    public virtual void Hover() { }
 
-    public virtual void Unhover()
-    {
-        rend.material.color = defaultColor;
-    }
+    public virtual void Unhover() { }
 
-    public virtual void Interact(Player interactor)
-    {
-        SetVisible(false);
-    }
+    public virtual void Interact(Player interactor) { }
 
     #region Visibility
     public void SetVisible(bool value)

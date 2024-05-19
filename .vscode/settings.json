@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "click to move.sln"
+    "dotnet.defaultSolution": "click-to-move.sln"
 }

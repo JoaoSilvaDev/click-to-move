@@ -1,16 +1,24 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.AI;
+using System.Collections;
 
 public class PlayerMovement : NetworkBehaviour
 {
     public float moveSpeed = 2;
     public float rotSpeed = 8;
 
-    private NavMeshAgent navmeshAgent;
     private Camera cam;
     private Player player;
     private Interactable targetInteractable;
+
+    // navmesh
+    private NavMeshAgent navmeshAgent;
+    private bool moveAcrossNavMeshesStarted = false;
+    private Vector3 offMeshLinkStart;
+    private Vector3 offMeshLinkEnd;
+    private float offMeshLinkDuration;
+    private float offMeshLinkTimer = 0f;
 
     public void Init(Player player)
     {
@@ -24,18 +32,28 @@ public class PlayerMovement : NetworkBehaviour
         if (!IsOwner) return;
 
         if (Input.GetMouseButton(1)) //!player.interaction.IsHoveringInteractable)
-                OnClick();
+            OnClick();
+
+        if (navmeshAgent.isOnOffMeshLink && !moveAcrossNavMeshesStarted)
+            StartNavmeshLinkTraversal();
+
+        if (moveAcrossNavMeshesStarted)
+            UpdateNavmeshLinkTraversal();
 
         if (targetInteractable)
         {
             if (Vector3.Distance(targetInteractable.transform.position, transform.position) < player.interaction.interactionRange)
             {
                 if (player.interaction.TryInteract(targetInteractable))
+                {
+                    Stop();
                     targetInteractable = null;
+                }
             }
         }
     }
 
+    #region Input
     private void OnClick()
     {
         RaycastHit hit;
@@ -44,10 +62,45 @@ public class PlayerMovement : NetworkBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.collider.gameObject.CompareTag("Ground"))
-                SetDestination(hit.point);
+            {
+                if (IsPathPossible(hit.point))
+                    SetDestination(hit.point);
+            }
         }
     }
+    #endregion
 
+    #region Navmesh Link Traversal
+    private void StartNavmeshLinkTraversal()
+    {
+        offMeshLinkStart = navmeshAgent.transform.position;
+        offMeshLinkEnd = navmeshAgent.currentOffMeshLinkData.endPos + Vector3.up * navmeshAgent.baseOffset;
+        offMeshLinkDuration = (offMeshLinkEnd - offMeshLinkStart).magnitude / navmeshAgent.speed;
+
+        navmeshAgent.updateRotation = false;
+        offMeshLinkTimer = 0f;
+        moveAcrossNavMeshesStarted = true;
+    }
+
+    private void UpdateNavmeshLinkTraversal()
+    {
+        offMeshLinkTimer += Time.deltaTime;
+        float progress = offMeshLinkTimer / offMeshLinkDuration;
+        transform.position = Vector3.Lerp(offMeshLinkStart, offMeshLinkEnd, progress);
+        // SetDestination(transform.position);
+        if (progress >= 1f)
+        {
+            transform.position = offMeshLinkEnd;
+            // SetDestination(offMeshLinkEnd);
+
+            navmeshAgent.updateRotation = true;
+            navmeshAgent.CompleteOffMeshLink();
+            moveAcrossNavMeshesStarted = false;
+        }
+    }
+    #endregion
+
+    #region Navmesh Pathfinding
     public void SetDestination(Vector3 destination)
     {
         player.interaction.DeselectCurentInteractable();
@@ -59,6 +112,11 @@ public class PlayerMovement : NetworkBehaviour
         targetInteractable = interactable;
         Vector3 closestPointOnEdge = FindClosestPointOnEdge(interactable);
         SetDestination(closestPointOnEdge);
+    }
+
+    private void Stop()
+    {
+        SetDestination(transform.position);
     }
 
     private Vector3 FindClosestPointOnEdge(Interactable interactable)
@@ -82,4 +140,12 @@ public class PlayerMovement : NetworkBehaviour
         // If we can't find a valid point on the NavMesh, fall back to the original position
         return closestPoint;
     }
+
+    bool IsPathPossible(Vector3 targetPosition)
+    {
+        NavMeshPath path = new NavMeshPath();
+        navmeshAgent.CalculatePath(targetPosition, path);
+        return path.status == NavMeshPathStatus.PathComplete;
+    }
+    #endregion
 }
