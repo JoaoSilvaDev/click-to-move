@@ -2,10 +2,10 @@
 [x] camera controls
 
 [] interactable system
-    - things you can pick up (ex: bones, leaves)
-    - things you can break and get items from  (ex: trees, rocks)
-    - things that cause an action (ex: door, open close)
-    - things that cause an action on other things (ex: lever to draw bridge, sign that opens a read UI)
+    [x] things that cause an action (ex: door, open close)
+    [] things you can break and get items from  (ex: trees, rocks)
+    [] things that cause an action on other things (ex: lever to draw bridge, sign that opens a read UI)
+    [] things you can pick up (ex: bones, leaves) (requires inventory)
 
 [] inventory shit
 
