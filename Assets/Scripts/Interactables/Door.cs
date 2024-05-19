@@ -6,7 +6,6 @@ public class Door : Interactable
 {
     public NavMeshLink navMeshLink;
     public Vector3 openRotation, closeRotation;
-    private Color defaultColor;
     private float lerpSpeed = 5f;
 
     private NetworkVariable<bool> open = new NetworkVariable<bool>(
@@ -21,9 +20,6 @@ public class Door : Interactable
         open.OnValueChanged += OnOpenChanged;
         navMeshLink.activated = open.Value;
         rend.enabled = !open.Value;
-
-        rend.material = Instantiate(rend.material);
-        defaultColor = rend.material.color;
     }
 
     private void Update()

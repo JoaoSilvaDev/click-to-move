@@ -1,13 +1,8 @@
 using UnityEngine;
 
-public class TestInteractableBall : Interactable
+public class Lever : Interactable
 {
-    public Transform doorMode;
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-    }
+    public Interactable remoteInteractable;
 
     public override void Hover()
     {
@@ -24,6 +19,7 @@ public class TestInteractableBall : Interactable
     public override void Interact(Player interactor)
     {
         base.Interact(interactor);
-        SetVisible(false);
+        print("remoteInteractable.Interact");
+        remoteInteractable.Interact(interactor);
     }
 }
