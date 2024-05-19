@@ -42,13 +42,10 @@ public class PlayerMovement : NetworkBehaviour
 
         if (targetInteractable)
         {
-            if (Vector3.Distance(targetInteractable.transform.position, transform.position) < player.interaction.interactionRange)
+            if (player.interaction.TryInteract(targetInteractable))
             {
-                if (player.interaction.TryInteract(targetInteractable))
-                {
-                    Stop();
-                    targetInteractable = null;
-                }
+                targetInteractable = null;
+                Stop();
             }
         }
     }
@@ -64,7 +61,10 @@ public class PlayerMovement : NetworkBehaviour
             if (hit.collider.gameObject.CompareTag("Ground"))
             {
                 if (IsPathPossible(hit.point))
+                {
+                    targetInteractable = null;
                     SetDestination(hit.point);
+                }
             }
         }
     }
@@ -103,15 +103,21 @@ public class PlayerMovement : NetworkBehaviour
     #region Navmesh Pathfinding
     public void SetDestination(Vector3 destination)
     {
-        player.interaction.DeselectCurentInteractable();
         navmeshAgent.SetDestination(destination);
     }
 
     public void SetTargetInteractable(Interactable interactable)
     {
         targetInteractable = interactable;
-        Vector3 closestPointOnEdge = FindClosestPointOnEdge(interactable);
-        SetDestination(closestPointOnEdge);
+        if (IsPathPossible(interactable.transform.position))
+        {
+            SetDestination(interactable.transform.position);
+        }
+        else
+        {
+            Vector3 closestPointOnEdge = FindClosestPointOnEdge(interactable);
+            SetDestination(closestPointOnEdge);
+        }
     }
 
     private void Stop()

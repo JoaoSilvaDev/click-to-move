@@ -17,6 +17,11 @@ public class Interactable : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<bool> canInteract = new NetworkVariable<bool>(
+        true,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server);
+
     // in-scene placed NetworkObjects: Awake -> Start -> OnNetworkSpawn
     // dynamically spawned NetworkObjects: Awake -> OnNetworkSpawn -> Start
 
@@ -24,6 +29,7 @@ public class Interactable : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        canInteract.OnValueChanged += OnCanInteractChanged;
         visible.OnValueChanged += OnVisibleChanged;
         rend.enabled = visible.Value;
 
@@ -55,6 +61,26 @@ public class Interactable : NetworkBehaviour
     private void SetVisibleServerRpc(bool value)
     {
         visible.Value = value;
+    }
+    #endregion
+
+    #region Interactability
+    public void SetCanInteract(bool value)
+    {
+        if (IsServer)
+            canInteract.Value = value;
+        else
+            SetCanInteractServerRpc(value);
+    }
+
+    private void OnCanInteractChanged(bool previousValue, bool newValue)
+    {
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetCanInteractServerRpc(bool value)
+    {
+        canInteract.Value = value;
     }
     #endregion
 }

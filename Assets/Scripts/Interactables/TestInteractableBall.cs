@@ -25,5 +25,6 @@ public class TestInteractableBall : Interactable
     {
         base.Interact(interactor);
         SetVisible(false);
+        SetCanInteract(false);
     }
 }

@@ -3724,10 +3724,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1118746221}
     m_Modifications:
-    - target: {fileID: 1871879778650928275, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 5666071892103875251, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2234247262
@@ -3756,18 +3752,6 @@ PrefabInstance:
       propertyPath: remoteInteractable
       value: 
       objectReference: {fileID: 357264161}
-    - target: {fileID: 8568724045628896628, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
-      propertyPath: m_Size.x
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8568724045628896628, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
-      propertyPath: m_Size.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8568724045628896628, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
-      propertyPath: m_Center.y
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 8858712130984282019, guid: c34a7cbbd672b484a956db3b58400147, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3852,6 +3836,18 @@ PrefabInstance:
     - target: {fileID: 4940178504045594705, guid: 4ecc73d6ba8b88344a7311a889ac5f09, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457647533596456377, guid: 4ecc73d6ba8b88344a7311a889ac5f09, type: 3}
+      propertyPath: m_Size.x
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457647533596456377, guid: 4ecc73d6ba8b88344a7311a889ac5f09, type: 3}
+      propertyPath: m_Size.y
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457647533596456377, guid: 4ecc73d6ba8b88344a7311a889ac5f09, type: 3}
+      propertyPath: m_Size.z
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 5457647533596456377, guid: 4ecc73d6ba8b88344a7311a889ac5f09, type: 3}
       propertyPath: m_Enabled

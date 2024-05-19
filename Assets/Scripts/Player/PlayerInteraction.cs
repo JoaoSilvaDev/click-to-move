@@ -61,6 +61,8 @@ public class PlayerInteraction : NetworkBehaviour
 
     public bool TryInteract(Interactable interactable)
     {
+        if (!interactable.canInteract.Value) return false;
+
         if (Vector3.Distance(transform.position, interactable.transform.position) > interactionRange)
         {
             player.movement.SetTargetInteractable(interactable);
@@ -68,6 +70,7 @@ public class PlayerInteraction : NetworkBehaviour
         }
         else
         {
+            print("interact!!!");
             Interact(interactable);
             return true;
         }
