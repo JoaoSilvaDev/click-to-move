@@ -1,5 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
+using System;
+using System.Reflection;
 
 // interactable are objects that can be clicked on, some examples
 // things that cause an action (ex: door, open close)
@@ -44,43 +46,41 @@ public class Interactable : NetworkBehaviour
     public virtual void Interact(Player interactor) { }
 
     #region Visibility
+
     public void SetVisible(bool value)
     {
         if (IsServer)
-            visible.Value = value;
+            SetVisibleValue(value);
         else
-            SetVisibleServerRpc(value);
+            SetVisibleValueServerRpc(value);
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void SetVisibleValueServerRpc(bool value) { SetVisibleValue(value); }
+    private void SetVisibleValue(bool value) { visible.Value = value; }
 
     private void OnVisibleChanged(bool previousValue, bool newValue)
     {
         rend.enabled = newValue;
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void SetVisibleServerRpc(bool value)
-    {
-        visible.Value = value;
-    }
     #endregion
 
     #region Interactability
+
     public void SetCanInteract(bool value)
     {
         if (IsServer)
-            canInteract.Value = value;
+            SetCanInteractValue(value);
         else
-            SetCanInteractServerRpc(value);
+            SetCanInteractValueServerRpc(value);
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void SetCanInteractValueServerRpc(bool value) { SetCanInteractValue(value); }
+    private void SetCanInteractValue(bool value) { canInteract.Value = value; }
 
     private void OnCanInteractChanged(bool previousValue, bool newValue)
     {
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void SetCanInteractServerRpc(bool value)
-    {
-        canInteract.Value = value;
-    }
     #endregion
 }

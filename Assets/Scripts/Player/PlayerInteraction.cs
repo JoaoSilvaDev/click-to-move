@@ -70,7 +70,6 @@ public class PlayerInteraction : NetworkBehaviour
         }
         else
         {
-            print("interact!!!");
             Interact(interactable);
             return true;
         }

@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class TestInteractableBall : Interactable
+public class PickupItem : Interactable
 {
-    public Transform doorMode;
+    public ItemData item;
 
     public override void OnNetworkSpawn()
     {
@@ -26,5 +26,6 @@ public class TestInteractableBall : Interactable
         base.Interact(interactor);
         SetVisible(false);
         SetCanInteract(false);
+        interactor.inventory.SetItem(new InventoryItem(item.ID, (uint)Random.Range(0, 20)), Random.Range(0, 8));
     }
 }

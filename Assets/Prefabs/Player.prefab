@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 7156379311890634728}
   - component: {fileID: 6419980623688521619}
   - component: {fileID: 8179200638890010916}
+  - component: {fileID: 7505176145619391755}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -201,7 +202,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 4
+  m_Speed: 6
   m_Acceleration: 100
   avoidancePriority: 50
   m_AngularSpeed: 1000
@@ -228,6 +229,7 @@ MonoBehaviour:
   movement: {fileID: 6419980623688521619}
   interaction: {fileID: 8179200638890010916}
   model: {fileID: 994714450303656150}
+  inventory: {fileID: 7505176145619391755}
 --- !u!114 &6419980623688521619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,8 +242,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e9ba8e8363a27146b053281aa0f958c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
-  rotSpeed: 12
 --- !u!114 &8179200638890010916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,3 +255,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionRange: 2
+--- !u!114 &7505176145619391755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5442165638323364708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74b658433a2a8744db7121985861dc81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

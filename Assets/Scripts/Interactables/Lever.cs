@@ -19,7 +19,6 @@ public class Lever : Interactable
     public override void Interact(Player interactor)
     {
         base.Interact(interactor);
-        print("remoteInteractable.Interact");
         remoteInteractable.Interact(interactor);
     }
 }

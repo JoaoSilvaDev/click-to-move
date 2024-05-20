@@ -5,9 +5,6 @@ using System.Collections;
 
 public class PlayerMovement : NetworkBehaviour
 {
-    public float moveSpeed = 2;
-    public float rotSpeed = 8;
-
     private Camera cam;
     private Player player;
     private Interactable targetInteractable;
