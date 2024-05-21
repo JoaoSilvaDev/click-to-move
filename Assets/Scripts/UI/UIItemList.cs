@@ -12,7 +12,7 @@ public class UIItemList : MonoBehaviour
 
         for (int i = 0; i < items.Count; i++)
         {
-            if (items[i].ID == 0)
+            if (items[i].IsEmpty)
                 itemSlots[i].SetEmpty();
             else
                 itemSlots[i].SetItemData(

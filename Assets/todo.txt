@@ -8,8 +8,9 @@
     [] things you can pick up (ex: bones, leaves) (requires inventory)
 
 [] inventory
-    [] base inventory logic
-    [] add items
+    [x] base inventory logic
+    [x] add items
+    [x] pickup item
     [] move items
     [] swap items
     [] drop item
@@ -18,5 +19,8 @@
         - consumable (gives something non physical to the player and is removed from  inventory)
         - placeable (creates a prefab in the world and is removed from  inventory)
         - equipable (gives something physical to the player when in a specific slot (can be moved back))
+
+[] networking shit
+    - lobby system with persistent servers?
 
 [] building shit

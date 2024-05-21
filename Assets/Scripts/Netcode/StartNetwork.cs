@@ -1,21 +1,40 @@
-using Unity.Netcode;
+using System;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using UnityEngine;
+using TMPro;
 
-public class StartNetwork : MonoBehaviour
+public class StartNetworkMenu : MonoBehaviour
 {
-    public void StartServer()
-    {
-        NetworkManager.Singleton.StartServer();
-    }
+    public Canvas connectingPanel;
+    public Canvas menuPanel;
+    public TMP_InputField joinCodeInput;
 
-    public void StartClient()
+    private async void Start()
     {
-        NetworkManager.Singleton.StartClient();
+        try
+        {
+            await UnityServices.InitializeAsync();
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            Debug.Log($"Player Id: {AuthenticationService.Instance.PlayerId}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+            throw;
+        }
+
+        connectingPanel.enabled = false;
+        menuPanel.enabled = true;
     }
 
     public void StartHost()
     {
-        NetworkManager.Singleton.StartHost();
+        HostManager.instance.StartHost();
     }
 
+    public void StartClient()
+    {
+        ClientManager.instance.StartClient(joinCodeInput.text);
+    }
 }

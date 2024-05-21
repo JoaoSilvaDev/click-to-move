@@ -24,8 +24,10 @@ public class PickupItem : Interactable
     public override void Interact(Player interactor)
     {
         base.Interact(interactor);
-        SetVisible(false);
-        SetCanInteract(false);
-        interactor.inventory.SetItem(new InventoryItem(item.ID, (uint)Random.Range(0, 20)), Random.Range(0, 8));
+        if (interactor.inventory.AddItem(new InventoryItem(item.ID, 1)))
+        {
+            SetVisible(false);
+            SetCanInteract(false);
+        }
     }
 }

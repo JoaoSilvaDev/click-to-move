@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public struct InventoryItem : INetworkSerializable, IEquatable<InventoryItem>
 {
-    public uint ID;
+    public uint ID; // 0 represents NO ITEM
     public uint quantity;
+    public bool IsEmpty { get { return (ID == 0 || quantity == 0); } }
 
     public InventoryItem(uint ID, uint quantity)
     {
@@ -83,8 +83,33 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    #region Add Item
-    public void SetItem(InventoryItem item, int slotIndex)
+    #region Public Item Management
+    public bool AddItem(InventoryItem item, uint quantity = 1)
+    {
+        int slotWithSameItemID = GetFirstSlotWithItemID(item.ID);
+        int emptySlot = GetFirstEmptySlot();
+
+        if (slotWithSameItemID != -1)
+        {
+            SetItem(new InventoryItem(item.ID, quantity + items[slotWithSameItemID].quantity), slotWithSameItemID);
+            return true;
+        }
+        else if (emptySlot != -1)
+        {
+            SetItem(new InventoryItem(item.ID, quantity), emptySlot);
+            return true;
+        }
+        else
+        {
+            Debug.Log("Could not find empty slot or slot with same item ID");
+            return false;
+        }
+    }
+    #endregion
+
+    #region Internal Item Managemtn
+
+    private void SetItem(InventoryItem item, int slotIndex)
     {
         // print("SetItem");
         if (IsServer)
@@ -105,7 +130,24 @@ public class PlayerInventory : NetworkBehaviour
         SetDirty(true);
     }
 
-    #endregion
+    private int GetFirstEmptySlot()
+    {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i].IsEmpty)
+                return i;
+        }
+        return -1;
+    }
+    private int GetFirstSlotWithItemID(uint ID)
+    {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i].ID == ID)
+                return i;
+        }
+        return -1;
+    }
 
     public void SetDirty(bool value)
     {
@@ -118,51 +160,7 @@ public class PlayerInventory : NetworkBehaviour
     private void SetDirtyValueServerRpc(bool value) { SetDirtyValue(value); }
     private void SetDirtyValue(bool value) { dirty.Value = value; }
 
-    // [ServerRpc(RequireOwnership = false)]
-    // private void PopulateEmptyInventoryServerRpc()
-    // {
-    //     for (int i = 0; i < inventorySize; i++)
-    //         inventory.Add(new Slot(-1, 0));
-    // }
-    // private void PopulateEmptyInventory()
-    // {
-    //     if (IsServer)
-    //     {
-    //         for (int i = 0; i < inventorySize; i++)
-    //             inventory.Add(new Slot(-1, 0));
-    //     }
-    //     else
-    //         PopulateEmptyInventoryServerRpc();
-
-    //     dirty = true;
-    // }
-
-    // public void AddItem(int itemID, int quantity)
-    // {
-    //     int slotWithSameItem = GetFirstSlotIndexWithItem(itemID);
-    //     int emptySlot = GetFirstEmptySlotIndex();
-
-    //     if (slotWithSameItem == -1 && emptySlot == -1)
-    //     {
-    //         Debug.Log("No available slot");
-    //     }
-    //     else if (slotWithSameItem != -1)
-    //     {
-    //         if (IsServer)
-    //             AddItem(slotWithSameItem, itemID, quantity);
-    //         else
-    //             AddItemServerRpc(slotWithSameItem, itemID, quantity);
-    //     }
-    //     else if (emptySlot != -1)
-    //     {
-    //         if (IsServer)
-    //             AddItem(emptySlot, itemID, quantity);
-    //         else
-    //             AddItemServerRpc(emptySlot, itemID, quantity);
-    //     }
-
-    //     dirty = true;
-    // }
+    #endregion
 
     // private int GetFirstSlotIndexWithItem(int itemID)
     // {
