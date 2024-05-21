@@ -2,6 +2,7 @@ using Unity.Netcode;
 
 public class Player : NetworkBehaviour
 {
+    public ulong ClientId { get; private set; }
     public PlayerMovement movement;
     public PlayerInteraction interaction;
     public PlayerModel model;
@@ -17,6 +18,7 @@ public class Player : NetworkBehaviour
             PlayerManager.Instance.AddPlayer(this);
             movement.Init(this);
             interaction.Init(this);
+            ClientId = NetworkManager.Singleton.LocalClientId;
         }
     }
 }

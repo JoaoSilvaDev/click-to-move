@@ -1,7 +1,5 @@
 using UnityEngine;
 using Unity.Netcode;
-using System;
-using System.Reflection;
 
 // interactable are objects that can be clicked on, some examples
 // things that cause an action (ex: door, open close)
@@ -12,6 +10,7 @@ public class Interactable : NetworkBehaviour
 {
     [Header("Visuals")]
     public MeshRenderer rend;
+    public Collider coll;
     protected Color defaultColor;
 
     private NetworkVariable<bool> visible = new NetworkVariable<bool>(
@@ -24,6 +23,17 @@ public class Interactable : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<bool> isBeingInteracted = new NetworkVariable<bool>(
+        false,
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server);
+
+    public NetworkVariable<ulong> interactorId = new NetworkVariable<ulong>(
+        readPerm: NetworkVariableReadPermission.Everyone,
+        writePerm: NetworkVariableWritePermission.Server);
+
+    public bool IsBeingHovered { get; private set; } = false; // should not be seen by other players
+
     // in-scene placed NetworkObjects: Awake -> Start -> OnNetworkSpawn
     // dynamically spawned NetworkObjects: Awake -> OnNetworkSpawn -> Start
 
@@ -31,21 +41,38 @@ public class Interactable : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        canInteract.OnValueChanged += OnCanInteractChanged;
+        if (coll == null)
+            coll = GetComponent<Collider>();
+
         visible.OnValueChanged += OnVisibleChanged;
+        isBeingInteracted.OnValueChanged += OnIsBeingInteractedChange;
         rend.enabled = visible.Value;
 
         rend.material = Instantiate(rend.material);
         defaultColor = rend.material.color;
     }
 
-    public virtual void Hover() { }
+    #region Base Interaction
+    public virtual void Hover() { IsBeingHovered = true; } // executed only on the client
+    public virtual void Unhover() { IsBeingHovered = false; } // executed only on the client
 
-    public virtual void Unhover() { }
+    public virtual void Interact(Player interactor) // executed only on the client
+    {
+        SetIsBeingInteracted(true);
+        SetInteractorId(interactor.ClientId);
+    }
 
-    public virtual void Interact(Player interactor) { }
+    public virtual void Release(Player interactor) // executed only on the client
+    {
+        SetIsBeingInteracted(false);
+        SetInteractorId(0);
+    }
 
-    #region Visibility
+    public virtual void OnNetworkInteract() { } // executed on every client
+    public virtual void OnNetworkRelease() { } // executed on every client
+    #endregion
+
+    #region NetworkVariable visible
 
     public void SetVisible(bool value)
     {
@@ -65,7 +92,7 @@ public class Interactable : NetworkBehaviour
 
     #endregion
 
-    #region Interactability
+    #region NetworkVariable canInteract
 
     public void SetCanInteract(bool value)
     {
@@ -78,9 +105,48 @@ public class Interactable : NetworkBehaviour
     private void SetCanInteractValueServerRpc(bool value) { SetCanInteractValue(value); }
     private void SetCanInteractValue(bool value) { canInteract.Value = value; }
 
-    private void OnCanInteractChanged(bool previousValue, bool newValue)
+    #endregion
+
+    #region NetworkVariable isBeingInteracted
+
+    public void SetIsBeingInteracted(bool value)
     {
+        if (IsServer)
+            SetIsBeingInteractedValue(value);
+        else
+            SetIsBeingInteractedValueServerRpc(value);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void SetIsBeingInteractedValueServerRpc(bool value) { SetIsBeingInteractedValue(value); }
+    private void SetIsBeingInteractedValue(bool value) { isBeingInteracted.Value = value; }
+
+    private void OnIsBeingInteractedChange(bool previousValue, bool newValue)
+    {
+        if (newValue)
+            OnNetworkInteract();
+        else
+            OnNetworkRelease();
     }
 
     #endregion
+
+    #region NetworkVariable interactor
+
+    public void SetInteractorId(ulong value)
+    {
+        if (IsServer)
+            SetInteractorIdValue(value);
+        else
+            SetInteractorIdValueServerRpc(value);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void SetInteractorIdValueServerRpc(ulong value) { SetInteractorIdValue(value); }
+    private void SetInteractorIdValue(ulong value) { interactorId.Value = value; }
+
+    #endregion
+
+    public Vector3 GetClosestPoint(Vector3 point)
+    {
+        return coll.ClosestPoint(point);
+    }
 }

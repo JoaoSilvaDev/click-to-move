@@ -20,7 +20,8 @@
         - placeable (creates a prefab in the world and is removed from  inventory)
         - equipable (gives something physical to the player when in a specific slot (can be moved back))
 
-[] networking shit
-    - lobby system with persistent servers?
+[x] networking create/join lobby system
 
-[] building shit
+[] building shit ?
+
+[] litte animals :D

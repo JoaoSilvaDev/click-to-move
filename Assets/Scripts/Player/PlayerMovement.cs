@@ -7,7 +7,7 @@ public class PlayerMovement : NetworkBehaviour
 {
     private Camera cam;
     private Player player;
-    private Interactable targetInteractable;
+    public Interactable targetInteractable { get; private set; }
 
     // navmesh
     private NavMeshAgent navmeshAgent;
@@ -102,17 +102,23 @@ public class PlayerMovement : NetworkBehaviour
     {
         navmeshAgent.SetDestination(destination);
     }
+    public void SetDestination(Interactable interactable)
+    {
+        navmeshAgent.SetDestination(interactable.GetClosestPoint(transform.position));
+    }
 
     public void SetTargetInteractable(Interactable interactable)
     {
+        if (interactable == targetInteractable) return;
+
         targetInteractable = interactable;
         if (IsPathPossible(interactable.transform.position))
         {
-            SetDestination(interactable.transform.position);
+            SetDestination(interactable);
         }
         else
         {
-            Vector3 closestPointOnEdge = FindClosestPointOnEdge(interactable);
+            Vector3 closestPointOnEdge = GetClosestPointOnEdge(interactable);
             SetDestination(closestPointOnEdge);
         }
     }
@@ -122,7 +128,7 @@ public class PlayerMovement : NetworkBehaviour
         SetDestination(transform.position);
     }
 
-    private Vector3 FindClosestPointOnEdge(Interactable interactable)
+    private Vector3 GetClosestPointOnEdge(Interactable interactable)
     {
         // Get the interactable's bounds
         Collider collider = interactable.GetComponent<Collider>();

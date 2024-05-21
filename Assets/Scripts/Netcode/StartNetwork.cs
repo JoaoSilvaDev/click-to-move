@@ -12,6 +12,8 @@ public class StartNetworkMenu : MonoBehaviour
 
     private async void Start()
     {
+        connectingPanel.enabled = true;
+
         try
         {
             await UnityServices.InitializeAsync();

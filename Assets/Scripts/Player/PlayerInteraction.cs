@@ -6,8 +6,10 @@ public class PlayerInteraction : NetworkBehaviour
     public float interactionRange = 2f;
     private Camera cam;
     private Interactable hoveredInteractable;
+    private Interactable interactingInteractable;
     private Player player;
     public bool IsHoveringInteractable { get { return hoveredInteractable != null; } }
+    public bool IsInteractingInteractable { get { return interactingInteractable != null; } }
 
     public void Init(Player player)
     {
@@ -18,6 +20,7 @@ public class PlayerInteraction : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -39,13 +42,22 @@ public class PlayerInteraction : NetworkBehaviour
             DeselectCurentInteractable();
         }
 
-        if (Input.GetMouseButtonDown(0) && IsHoveringInteractable)
+        if (IsHoveringInteractable && Input.GetMouseButton(0))
             TryInteract(hoveredInteractable);
+
+        if (IsInteractingInteractable && Input.GetMouseButtonUp(0))
+            TryRelease(interactingInteractable);
     }
 
     public void DeselectCurentInteractable()
     {
-        if (hoveredInteractable)
+        if (IsInteractingInteractable)
+        {
+            interactingInteractable.Release(player);
+            interactingInteractable = null;
+        }
+
+        if (IsHoveringInteractable)
         {
             hoveredInteractable.Unhover();
             hoveredInteractable = null;
@@ -62,8 +74,9 @@ public class PlayerInteraction : NetworkBehaviour
     public bool TryInteract(Interactable interactable)
     {
         if (!interactable.canInteract.Value) return false;
+        if (interactingInteractable == interactable) return false;
 
-        if (Vector3.Distance(transform.position, interactable.transform.position) > interactionRange)
+        if (Vector3.Distance(transform.position, interactable.GetClosestPoint(transform.position)) > interactionRange)
         {
             player.movement.SetTargetInteractable(interactable);
             return false;
@@ -75,8 +88,24 @@ public class PlayerInteraction : NetworkBehaviour
         }
     }
 
+    public bool TryRelease(Interactable interactable)
+    {
+        if (!IsInteractingInteractable) return false;
+        if (!interactable.canInteract.Value) return false;
+
+        Release(interactable);
+        return true;
+    }
+
     private void Interact(Interactable interactable)
     {
+        interactingInteractable = interactable;
         interactable.Interact(player);
+    }
+
+    private void Release(Interactable interactable)
+    {
+        interactingInteractable = null;
+        interactable.Release(player);
     }
 }
