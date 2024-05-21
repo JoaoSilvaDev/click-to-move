@@ -13,7 +13,7 @@
     [x] pickup item
     [] move items
     [] swap items
-    [] drop item
+    [] drop items (can also be used by interactables, when dropping loot)
 
     type of items
         - consumable (gives something non physical to the player and is removed from  inventory)
@@ -25,3 +25,12 @@
 [] building shit ?
 
 [] litte animals :D
+
+
+-----
+
+
+[] mineable interactables
+    [x] give items
+    [x] frequency of hits
+    [] health

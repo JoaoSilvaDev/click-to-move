@@ -32,6 +32,7 @@ public class Interactable : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
+    protected Player interactor;
     public bool IsBeingHovered { get; private set; } = false; // should not be seen by other players
 
     // in-scene placed NetworkObjects: Awake -> Start -> OnNetworkSpawn
@@ -59,13 +60,13 @@ public class Interactable : NetworkBehaviour
     public virtual void Interact(Player interactor) // executed only on the client
     {
         SetIsBeingInteracted(true);
-        SetInteractorId(interactor.ClientId);
+        SetInteractor(interactor);
     }
 
     public virtual void Release(Player interactor) // executed only on the client
     {
         SetIsBeingInteracted(false);
-        SetInteractorId(0);
+        SetInteractor(null);
     }
 
     public virtual void OnNetworkInteract() { } // executed on every client
@@ -132,12 +133,22 @@ public class Interactable : NetworkBehaviour
 
     #region NetworkVariable interactor
 
-    public void SetInteractorId(ulong value)
+    public void SetInteractor(Player interactor)
+    {
+        this.interactor = interactor;
+
+        if (interactor == null)
+            SetInteractorId(0);
+        else
+            SetInteractorId(interactor.OwnerClientId);
+    }
+
+    private void SetInteractorId(ulong Id)
     {
         if (IsServer)
-            SetInteractorIdValue(value);
+            SetInteractorIdValue(Id);
         else
-            SetInteractorIdValueServerRpc(value);
+            SetInteractorIdValueServerRpc(Id);
     }
     [ServerRpc(RequireOwnership = false)]
     private void SetInteractorIdValueServerRpc(ulong value) { SetInteractorIdValue(value); }

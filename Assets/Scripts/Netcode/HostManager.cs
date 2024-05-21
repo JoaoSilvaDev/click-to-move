@@ -62,6 +62,9 @@ public class HostManager : MonoBehaviour
         ClientData = new Dictionary<ulong, ClientData>();
 
         NetworkManager.Singleton.StartHost();
+
+        UI.instance.joinCodeText.text = joinCode;
+        UI.instance.SetIngame();
     }
 
     private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)

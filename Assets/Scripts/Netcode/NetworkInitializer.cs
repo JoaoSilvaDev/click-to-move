@@ -2,17 +2,12 @@ using System;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine;
-using TMPro;
 
-public class StartNetworkMenu : MonoBehaviour
+public class NetworkInitializer : MonoBehaviour
 {
-    public Canvas connectingPanel;
-    public Canvas menuPanel;
-    public TMP_InputField joinCodeInput;
-
     private async void Start()
     {
-        connectingPanel.enabled = true;
+        UI.instance.SetAuthenticating();
 
         try
         {
@@ -26,17 +21,18 @@ public class StartNetworkMenu : MonoBehaviour
             throw;
         }
 
-        connectingPanel.enabled = false;
-        menuPanel.enabled = true;
+        UI.instance.SetLobbyMenu();
     }
 
     public void StartHost()
     {
         HostManager.instance.StartHost();
+        UI.instance.SetConnecting();
     }
 
     public void StartClient()
     {
-        ClientManager.instance.StartClient(joinCodeInput.text);
+        ClientManager.instance.StartClient(UI.instance.joinCodeInput.text);
+        UI.instance.SetConnecting();
     }
 }

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine;
+using Unity.Netcode;
 
 public class PlayerManager : Singleton<PlayerManager>
 {
-    private List<Player> players = new List<Player>();
+    public List<Player> players = new List<Player>();
 
     public void AddPlayer(Player player)
     {

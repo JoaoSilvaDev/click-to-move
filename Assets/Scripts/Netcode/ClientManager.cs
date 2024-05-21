@@ -47,5 +47,6 @@ public class ClientManager : MonoBehaviour
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
         NetworkManager.Singleton.StartClient();
+        UI.instance.SetIngame();
     }
 }
