@@ -86,17 +86,21 @@ public class PlayerInventory : NetworkBehaviour
     #region Public Item Management
     public bool AddItem(InventoryItem item, uint quantity = 1)
     {
-        int slotWithSameItemID = GetFirstSlotWithItemID(item.ID);
+        return AddItem(item.ID, quantity);
+    }
+    public bool AddItem(uint ID, uint quantity = 1)
+    {
+        int slotWithSameItemID = GetFirstSlotWithItemID(ID);
         int emptySlot = GetFirstEmptySlot();
 
         if (slotWithSameItemID != -1)
         {
-            SetItem(new InventoryItem(item.ID, quantity + items[slotWithSameItemID].quantity), slotWithSameItemID);
+            SetItem(new InventoryItem(ID, quantity + items[slotWithSameItemID].quantity), slotWithSameItemID);
             return true;
         }
         else if (emptySlot != -1)
         {
-            SetItem(new InventoryItem(item.ID, quantity), emptySlot);
+            SetItem(new InventoryItem(ID, quantity), emptySlot);
             return true;
         }
         else

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.AI;
 
 // interactable are objects that can be clicked on, some examples
 // things that cause an action (ex: door, open close)
@@ -11,6 +12,7 @@ public class Interactable : NetworkBehaviour
     [Header("Visuals")]
     public MeshRenderer rend;
     public Collider coll;
+    public NavMeshObstacle navmeshObstacle;
     protected Color defaultColor;
 
     private NetworkVariable<bool> visible = new NetworkVariable<bool>(
@@ -42,11 +44,9 @@ public class Interactable : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (coll == null)
-            coll = GetComponent<Collider>();
-
         visible.OnValueChanged += OnVisibleChanged;
         isBeingInteracted.OnValueChanged += OnIsBeingInteractedChange;
+        canInteract.OnValueChanged += OnCanInteractChange;
         rend.enabled = visible.Value;
 
         rend.material = Instantiate(rend.material);
@@ -86,9 +86,11 @@ public class Interactable : NetworkBehaviour
     private void SetVisibleValueServerRpc(bool value) { SetVisibleValue(value); }
     private void SetVisibleValue(bool value) { visible.Value = value; }
 
-    private void OnVisibleChanged(bool previousValue, bool newValue)
+    protected virtual void OnVisibleChanged(bool previousValue, bool newValue)
     {
         rend.enabled = newValue;
+        if(navmeshObstacle)
+            navmeshObstacle.enabled = newValue;
     }
 
     #endregion
@@ -105,6 +107,10 @@ public class Interactable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SetCanInteractValueServerRpc(bool value) { SetCanInteractValue(value); }
     private void SetCanInteractValue(bool value) { canInteract.Value = value; }
+    private void OnCanInteractChange(bool previousValue, bool newValue)
+    {
+        coll.enabled = newValue;
+    }
 
     #endregion
 
@@ -120,7 +126,6 @@ public class Interactable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SetIsBeingInteractedValueServerRpc(bool value) { SetIsBeingInteractedValue(value); }
     private void SetIsBeingInteractedValue(bool value) { isBeingInteracted.Value = value; }
-
     private void OnIsBeingInteractedChange(bool previousValue, bool newValue)
     {
         if (newValue)

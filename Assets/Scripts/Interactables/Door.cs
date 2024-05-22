@@ -1,10 +1,10 @@
 using UnityEngine;
 using Unity.Netcode;
 using Unity.AI.Navigation;
+using UnityEngine.AI;
 
 public class Door : Interactable
 {
-    public NavMeshLink navMeshLink;
     public Vector3 openRotation, closeRotation;
     private float lerpSpeed = 5f;
 
@@ -18,7 +18,7 @@ public class Door : Interactable
         base.OnNetworkSpawn();
 
         open.OnValueChanged += OnOpenChanged;
-        navMeshLink.activated = open.Value;
+        navmeshObstacle.enabled = !open.Value;
         rend.enabled = !open.Value;
     }
 
@@ -65,7 +65,7 @@ public class Door : Interactable
     {
         // animate
         // set navmesh thing
-        navMeshLink.activated = newValue;
+        navmeshObstacle.enabled = !newValue;
         // rend.enabled = !newValue;
     }
 

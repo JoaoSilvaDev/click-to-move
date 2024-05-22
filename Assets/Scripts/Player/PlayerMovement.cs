@@ -104,7 +104,9 @@ public class PlayerMovement : NetworkBehaviour
     }
     public void SetDestination(Interactable interactable)
     {
-        navmeshAgent.SetDestination(interactable.GetClosestPoint(transform.position));
+        Vector3 point = interactable.GetClosestPoint(transform.position);
+        point.y = transform.position.y;
+        navmeshAgent.SetDestination(point);
     }
 
     public void SetTargetInteractable(Interactable interactable)
@@ -130,21 +132,12 @@ public class PlayerMovement : NetworkBehaviour
 
     private Vector3 GetClosestPointOnEdge(Interactable interactable)
     {
-        // Get the interactable's bounds
-        Collider collider = interactable.GetComponent<Collider>();
-        if (collider == null)
-        {
-            Debug.LogWarning("Interactable object has no collider.");
-            return interactable.transform.position;
-        }
-
-        Vector3 closestPoint = collider.ClosestPointOnBounds(navmeshAgent.transform.position);
+        // Get the interactable's closest point
+        Vector3 closestPoint = interactable.GetClosestPoint(transform.position);
 
         // Sample the NavMesh at the closest point, using interactionRange
         if (NavMesh.SamplePosition(closestPoint, out NavMeshHit hit, player.interaction.interactionRange, NavMesh.AllAreas))
-        {
             return hit.position;
-        }
 
         // If we can't find a valid point on the NavMesh, fall back to the original position
         return closestPoint;

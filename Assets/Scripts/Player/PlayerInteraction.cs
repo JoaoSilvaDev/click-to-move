@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class PlayerInteraction : NetworkBehaviour
 {
@@ -76,7 +77,9 @@ public class PlayerInteraction : NetworkBehaviour
         if (!interactable.canInteract.Value) return false;
         if (interactingInteractable == interactable) return false;
 
-        if (Vector3.Distance(transform.position, interactable.GetClosestPoint(transform.position)) > interactionRange)
+        Vector3 closestPoint = interactable.GetClosestPoint(transform.position);
+        closestPoint.y = transform.position.y;
+        if (Vector3.Distance(transform.position, closestPoint) > interactionRange)
         {
             player.movement.SetTargetInteractable(interactable);
             return false;
@@ -107,5 +110,23 @@ public class PlayerInteraction : NetworkBehaviour
     {
         interactingInteractable = null;
         interactable.Release(player);
+    }
+
+    private void OnDrawGizmos()
+    {
+        // if (hoveredInteractable)
+        // {
+        //     Vector3 closestPoint = hoveredInteractable.GetClosestPoint(transform.position);
+        //     closestPoint.y = transform.position.y;
+
+        //     if (Vector3.Distance(transform.position, closestPoint) > interactionRange)
+        //         Gizmos.color = Color.red;
+        //     else
+        //         Gizmos.color = Color.green;
+
+        //     Gizmos.DrawWireSphere(closestPoint, 0.5f);
+        //     Gizmos.DrawLine(transform.position, closestPoint);
+        //     print(Vector3.Distance(transform.position, closestPoint));
+        // }
     }
 }
