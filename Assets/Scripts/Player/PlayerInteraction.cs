@@ -54,7 +54,7 @@ public class PlayerInteraction : NetworkBehaviour
     {
         if (IsInteractingInteractable)
         {
-            interactingInteractable.Release(player);
+            interactingInteractable.ClientRelease(player);
             interactingInteractable = null;
         }
 
@@ -103,13 +103,13 @@ public class PlayerInteraction : NetworkBehaviour
     private void Interact(Interactable interactable)
     {
         interactingInteractable = interactable;
-        interactable.Interact(player);
+        interactable.ClientInteract(player);
     }
 
     private void Release(Interactable interactable)
     {
         interactingInteractable = null;
-        interactable.Release(player);
+        interactable.ClientRelease(player);
     }
 
     private void OnDrawGizmos()

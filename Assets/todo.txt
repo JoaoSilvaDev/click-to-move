@@ -1,29 +1,29 @@
-
-
-
-
-
-
-
--->> TODO <<--
-
 [] interactable types
     [x] action, things that cause an action (ex: door, open close)
     [x] remote, things that cause an action on other things (ex: lever to draw bridge, sign that opens a read UI)
     [x] picup, things you can pick up (ex: bones, leaves) (requires inventory)
-    [] resource, things you can break and get items from  (ex: trees, rocks) (requires inventory)
+    [x] resource, things you can break and get items from  (ex: trees, rocks) (requires inventory)
         [x] frequency of hits
         [x] give items
         [x] health
-        [] destroy
+        [x] destroy
 
 [] refactor interactables
     make addon components that subscribe to interactable functions.
     so you put the Interactable base component and add these to add the functionality you need
-    [] InteractableObstacle
-    [] InteractableRemote
-    [] InteractablePickup
-    [] InteracttableResource
+    [x] InteractablePickup
+    [x] InteractableAction
+            InteractableObstacle (use the Action one, but the obstacle logic is in the object script like Door.cs)
+            InteractableRemote (use the Action one, and drag a different object to the inspector UnityEvent)
+    [x] InteractableResource
+
+[] fix trees not syncing obstacles properly
+
+[] interactable hover visuals
+    maybe per type?
+        if you can pickup it shows something
+        if its a resource, something else
+        maybe thats useful
 
 [] inventory
     [x] base inventory logic
@@ -33,14 +33,19 @@
     [] swap items
     [] drop items (can also be used by interactables, when dropping loot)
 
+[] auto bake navmesh in editor or smth
+
 item types
     [] consumable (gives something non physical to the player and is removed from  inventory)
     [] placeable (creates a prefab in the world and is removed from  inventory)
     [] equipable (gives something physical to the player when in a specific slot (can be moved back))
 
-[] auto bake navmesh in editor or smth
 
--->> WISHLIST <<--
+
+
+
+
+-- WISHLIST --
 [] building shit ?
 [] litte animals :D
 [] persistent servers

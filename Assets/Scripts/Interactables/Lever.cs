@@ -7,18 +7,18 @@ public class Lever : Interactable
     public override void Hover()
     {
         base.Hover();
-        rend.material.color = defaultColor + new Color(0.2f, 0.2f, 0.2f);
+        renderers[0].material.color = defaultColor + new Color(0.2f, 0.2f, 0.2f);
     }
 
     public override void Unhover()
     {
         base.Unhover();
-        rend.material.color = defaultColor;
+        renderers[0].material.color = defaultColor;
     }
 
-    public override void Interact(Player interactor)
+    public override void ClientInteract(Player interactor)
     {
-        base.Interact(interactor);
-        remoteInteractable.Interact(interactor);
+        base.ClientInteract(interactor);
+        remoteInteractable.ClientInteract(interactor);
     }
 }

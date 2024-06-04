@@ -89,15 +89,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69150816599d5a64fb9e9d8cc491093b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rend: {fileID: 8699223082157340645}
+  renderers:
+  - {fileID: 8699223082157340645}
   coll: {fileID: 8568724045628896628}
-  navmeshObstacle: {fileID: 0}
+  defaultColor: {r: 0, g: 0, b: 0, a: 0}
   canInteract:
     m_InternalValue: 1
   isBeingInteracted:
     m_InternalValue: 0
   interactorId:
     m_InternalValue: 0
+  interactor: {fileID: 0}
   remoteInteractable: {fileID: 0}
 --- !u!1 &8858712130984282019
 GameObject:

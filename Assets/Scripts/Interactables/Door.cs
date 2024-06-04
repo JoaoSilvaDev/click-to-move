@@ -1,25 +1,21 @@
-using UnityEngine;
 using Unity.Netcode;
-using Unity.AI.Navigation;
+using UnityEngine;
 using UnityEngine.AI;
 
-public class Door : Interactable
+public class NewDoor : NetworkBehaviour
 {
+    public NavMeshObstacle navmeshObstacle;
     public Vector3 openRotation, closeRotation;
-    private float lerpSpeed = 5f;
+    public float lerpSpeed = 5f;
 
     private NetworkVariable<bool> open = new NetworkVariable<bool>(
         false,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
-    public override void OnNetworkSpawn()
+    private void Awake()
     {
-        base.OnNetworkSpawn();
-
         open.OnValueChanged += OnOpenChanged;
-        navmeshObstacle.enabled = !open.Value;
-        rend.enabled = !open.Value;
     }
 
     private void Update()
@@ -30,43 +26,18 @@ public class Door : Interactable
             lerpSpeed * Time.deltaTime);
     }
 
-    public override void Hover()
-    {
-        base.Hover();
-        rend.material.color = defaultColor + new Color(0.2f, 0.2f, 0.2f);
-    }
-
-    public override void Unhover()
-    {
-        base.Unhover();
-        rend.material.color = defaultColor;
-    }
-
-    public override void Interact(Player interactor)
-    {
-        base.Interact(interactor);
-        Toggle();
-    }
-
-    private void Toggle()
+    public void Toggle()
     {
         SetOpen(!open.Value);
     }
 
-    public void SetOpen(bool value)
+    #region NetworkVariable Open
+    private void SetOpen(bool value)
     {
         if (IsServer)
             open.Value = value;
         else
             SetOpenServerRpc(value);
-    }
-
-    private void OnOpenChanged(bool previousValue, bool newValue)
-    {
-        // animate
-        // set navmesh thing
-        navmeshObstacle.enabled = !newValue;
-        // rend.enabled = !newValue;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -75,4 +46,10 @@ public class Door : Interactable
         open.Value = value;
     }
 
+    private void OnOpenChanged(bool previousValue, bool newValue)
+    {
+        if (navmeshObstacle)
+            navmeshObstacle.enabled = !newValue;
+    }
+    #endregion
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.AI;
+using System;
 
 // interactable are objects that can be clicked on, some examples
 // things that cause an action (ex: door, open close)
@@ -10,10 +10,9 @@ using UnityEngine.AI;
 public class Interactable : NetworkBehaviour
 {
     [Header("Visuals")]
-    public MeshRenderer rend;
+    public MeshRenderer[] renderers;
     public Collider coll;
-    public NavMeshObstacle navmeshObstacle;
-    protected Color defaultColor;
+    [HideInInspector] public Color defaultColor;
 
     private NetworkVariable<bool> visible = new NetworkVariable<bool>(
         true,
@@ -25,20 +24,30 @@ public class Interactable : NetworkBehaviour
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
+    [HideInInspector]
     public NetworkVariable<bool> isBeingInteracted = new NetworkVariable<bool>(
         false,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
+    [HideInInspector]
     public NetworkVariable<ulong> interactorId = new NetworkVariable<ulong>(
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
 
-    protected Player interactor;
+    [HideInInspector]
+    public Player interactor;
     public bool IsBeingHovered { get; private set; } = false; // should not be seen by other players
 
     // in-scene placed NetworkObjects: Awake -> Start -> OnNetworkSpawn
     // dynamically spawned NetworkObjects: Awake -> OnNetworkSpawn -> Start
+
+    public Action OnHover;
+    public Action OnUnhover;
+    public Action<Player> OnClientInteract;
+    public Action<Player> OnClientRelease;
+    public Action OnNetworkInteractCallback;
+    public Action OnNetworkReleaseCallback;
 
     public override void OnNetworkSpawn()
     {
@@ -47,30 +56,42 @@ public class Interactable : NetworkBehaviour
         visible.OnValueChanged += OnVisibleChanged;
         isBeingInteracted.OnValueChanged += OnIsBeingInteractedChange;
         canInteract.OnValueChanged += OnCanInteractChange;
-        rend.enabled = visible.Value;
+        SetRenderers(visible.Value);
 
-        rend.material = Instantiate(rend.material);
-        defaultColor = rend.material.color;
+        renderers[0].material = Instantiate(renderers[0].material);
+        defaultColor = renderers[0].material.color;
+    }
+
+    public void SetRenderers(bool enabled)
+    {
+        foreach (MeshRenderer r in renderers)
+            r.enabled = enabled;
     }
 
     #region Base Interaction
-    public virtual void Hover() { IsBeingHovered = true; } // executed only on the client
-    public virtual void Unhover() { IsBeingHovered = false; } // executed only on the client
+    public virtual void Hover() { IsBeingHovered = true; OnHover?.Invoke(); } // executed only on the client
+    public virtual void Unhover() { IsBeingHovered = false; OnUnhover?.Invoke(); } // executed only on the client
 
-    public virtual void Interact(Player interactor) // executed only on the client
+
+    // these are only on the client
+    // but they can, ofcourse call things on all clients (like SetVisible())
+    public virtual void ClientInteract(Player interactor) // executed only on the client
     {
         SetIsBeingInteracted(true);
         SetInteractor(interactor);
+        OnClientInteract?.Invoke(interactor);
     }
-
-    public virtual void Release(Player interactor) // executed only on the client
+    public virtual void ClientRelease(Player interactor) // executed only on the client
     {
         SetIsBeingInteracted(false);
         SetInteractor(null);
+        OnClientRelease?.Invoke(interactor);
     }
 
-    public virtual void OnNetworkInteract() { } // executed on every client
-    public virtual void OnNetworkRelease() { } // executed on every client
+    // these are callbacks that are called on all clients when a player starts interacting with it
+    // so if we want to do something on ALL clients when something is interacted with
+    public virtual void NetworkInteractCallback() { OnNetworkInteractCallback?.Invoke(); } // executed on every client
+    public virtual void NetworkReleaseCallback() { OnNetworkReleaseCallback?.Invoke(); } // executed on every client
     #endregion
 
     #region NetworkVariable visible
@@ -88,9 +109,7 @@ public class Interactable : NetworkBehaviour
 
     protected virtual void OnVisibleChanged(bool previousValue, bool newValue)
     {
-        rend.enabled = newValue;
-        if(navmeshObstacle)
-            navmeshObstacle.enabled = newValue;
+        SetRenderers(newValue);
     }
 
     #endregion
@@ -129,9 +148,9 @@ public class Interactable : NetworkBehaviour
     private void OnIsBeingInteractedChange(bool previousValue, bool newValue)
     {
         if (newValue)
-            OnNetworkInteract();
+            NetworkInteractCallback();
         else
-            OnNetworkRelease();
+            NetworkReleaseCallback();
     }
 
     #endregion

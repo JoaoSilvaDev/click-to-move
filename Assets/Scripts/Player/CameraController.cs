@@ -11,9 +11,8 @@ public class CameraController : MonoBehaviour
     public bool autoFollow = false;
     public float followLerpSpeed = 1f;
     public float distance = 15f;
-    public Vector3 cameraDirection;
-    public float offsetDistance = 2f;
-    public float followMoveBorderDistance = 1f;
+    public Vector3 lookAtDirection;
+    public Vector2 offsetDistance;
 
     [Header("Manual")]
     public float manualMoveSpeed = 1f;
@@ -37,20 +36,27 @@ public class CameraController : MonoBehaviour
         {
             Color color = new Color(1f, 0f, 0f, 0.1f);
             Vector2 centeredMousePos = new Vector2(Input.mousePosition.x * 2f - Screen.width, Input.mousePosition.y * 2f - Screen.height);
-            Vector3 dir = new Vector3(centeredMousePos.x, 0f, centeredMousePos.y);
+            Vector3 dir = new Vector2(centeredMousePos.x, centeredMousePos.y);
 
             if (autoFollow)
             {
-                if (IsMouseInsideScreen() && centeredMousePos.magnitude > followMoveBorderDistance)
+                followOffset = Vector3.zero;
+
+                if (IsMouseInsideScreen())
                 {
-                    color.a = 0.2f;
-                    followOffset = dir * 0.001f * offsetDistance;
+                    if (Input.mousePosition.x <= manualMoveBorderDistance || Input.mousePosition.y <= manualMoveBorderDistance ||
+                        Input.mousePosition.x > Screen.width - manualMoveBorderDistance || Input.mousePosition.y > Screen.height - manualMoveBorderDistance)
+                    {
+                        color.a = 0.2f;
+                        followOffset = new Vector3(
+                            dir.x * offsetDistance.x * 0.001f,
+                            0,
+                            dir.y * offsetDistance.y * 0.001f);
+                    }
                 }
-                else
-                    followOffset = Vector3.zero;
 
                 transform.position = Vector3.Lerp(transform.position,
-                                                    playerTarget.transform.position + (cameraDirection * distance) + followOffset,
+                                                    playerTarget.transform.position + (lookAtDirection * distance) + followOffset,
                                                     followLerpSpeed * Time.deltaTime);
             }
             else
@@ -61,23 +67,12 @@ public class CameraController : MonoBehaviour
                         Input.mousePosition.x > Screen.width - manualMoveBorderDistance || Input.mousePosition.y > Screen.height - manualMoveBorderDistance)
                     {
                         color.a = 0.2f;
-                        transform.position += dir * manualMoveSpeed * Time.deltaTime;
+                        transform.position += new Vector3(dir.x * manualMoveSpeed, 0f, dir.y * manualMoveSpeed) * Time.deltaTime;
                     }
                 }
             }
 
-            using (Draw.InScreenSpace(Camera.main))
-            {
-                if (autoFollow)
-                    Draw.xy.Circle(new Unity.Mathematics.float2(Screen.width * 0.5f, Screen.height * 0.5f), followMoveBorderDistance * 0.5f, color);
-                else
-                {
-                    Draw.xy.SolidRectangle(new Rect(0, 0, Screen.width, manualMoveBorderDistance), color);
-                    Draw.xy.SolidRectangle(new Rect(0, 0, manualMoveBorderDistance, Screen.height), color);
-                    Draw.xy.SolidRectangle(new Rect(0, Screen.height - manualMoveBorderDistance, Screen.width, manualMoveBorderDistance), color);
-                    Draw.xy.SolidRectangle(new Rect(Screen.width - manualMoveBorderDistance, 0, manualMoveBorderDistance, Screen.height), color);
-                }
-            }
+            transform.LookAt(transform.position - lookAtDirection);
         }
     }
 
